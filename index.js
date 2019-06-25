@@ -33,8 +33,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
         case 'charge.succeeded':
             const paymentIntent = event.data.object;
             console.log(paymentIntent);
-            handlePaymentIntentSucceeded(paymentIntent);
-            break;
+            return response.status(200).send(paymentIntent);
         default:
             // Unexpected event type
             return response.status(400).end();
