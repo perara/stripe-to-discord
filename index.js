@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 // add discord webhook function
 const webhook = require("webhook-discord");
 
@@ -19,7 +21,7 @@ app.get("/", (request, response) => {
 });
 
 // Match the raw body to content type application/json
-app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (request, response) => {
+app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, response) => {
     const sig = request.headers['stripe-signature'];
 
     let event;
@@ -39,15 +41,13 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (reques
             const chargeSucceededHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
 
             const msg = new webhook.MessageBuilder()
-                .setName("Username")
-                .setColor("#aabbcc")
-                .setText("This is my test webhook!")
-                .addField("This", "is")
-                .addField("my", "test webhook!")
-                .setImage("Image url")
+                .setName("Stripe Payment")
+                .setColor("#32CD32")
+                .addField("Payment From", `${paymentIntent.billing_details.name}`)
+                .addField("Payment Amount", `${paymentIntent.amount} ${paymentIntent.currency.toUppercase()}`)
                 .setTime();
 
-            await chargeSucceededHook.send(msg);
+            chargeSucceededHook.send(msg);
 
 
             return response.status(200).send(paymentIntent);
