@@ -17,6 +17,17 @@ const app = require('express')();
 const bodyParser = require('body-parser');
 
 app.get("/", (request, response) => {
+    const chargeSucceededHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
+
+    const msg = new webhook.MessageBuilder()
+        .setName("Stripe Payment Test")
+        .setColor("#32CD32")
+        .addField("Payment From", `Darron Eggins`, true)
+        .addField("Payment Amount", `$100 USD`, true)
+        .setTime();
+
+    chargeSucceededHook.send(msg);
+
     response.status(200).send(`COPPED Stripe/Discord API`);
 });
 
@@ -44,7 +55,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
                 .setName("Stripe Payment")
                 .setColor("#32CD32")
                 .addField("Payment From", `${paymentIntent.billing_details.name}`)
-                .addField("Payment Amount", `${paymentIntent.amount} ${paymentIntent.currency}`)
+                .addField("Payment Amount", `$${paymentIntent.amount} ${paymentIntent.currency.toUpperCase()}`)
                 .setTime();
 
             chargeSucceededHook.send(msg);
