@@ -62,6 +62,23 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
 
 
             return response.status(200).send(paymentIntent);
+
+        case 'charge.failed':
+            const paymentIntentFailed = event.data.object;
+
+            const chargeFailedHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
+
+            const msgFailed = new webhook.MessageBuilder()
+                .setName("Stripe Payment Failed")
+                .setColor("#FF0000")
+                .addField("Payment From", `${paymentIntentFailed.billing_details.name}`)
+                .addField("Payment Amount", `$${paymentIntentFailed.amount} ${paymentIntentFailed.currency.toUpperCase()}`)
+                .setTime();
+
+            chargeFailedHook.send(msgFailed);
+
+
+            return response.status(200).send(paymentIntent);
         default:
             // Unexpected event type
             return response.status(400).end();
