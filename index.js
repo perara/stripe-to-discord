@@ -19,7 +19,7 @@ app.get("/", (request, response) => {
 });
 
 // Match the raw body to content type application/json
-app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, response) => {
+app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (request, response) => {
     const sig = request.headers['stripe-signature'];
 
     let event;
@@ -47,7 +47,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
                 .setImage("Image url")
                 .setTime();
 
-            chargeSucceededHook.send(msg);
+            await chargeSucceededHook.send(msg);
 
 
             return response.status(200).send(paymentIntent);
