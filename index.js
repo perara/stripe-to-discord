@@ -11,6 +11,10 @@ const app = require('express')();
 // Use body-parser to retrieve the raw body as a buffer
 const bodyParser = require('body-parser');
 
+app.get("/", (request, response) => {
+    response.status(200).send(`COPPED Stripe/Discord API`);
+});
+
 // Match the raw body to content type application/json
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, response) => {
     const sig = request.headers['stripe-signature'];
