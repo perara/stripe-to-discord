@@ -44,7 +44,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
                 .setName("Stripe Payment")
                 .setColor("#32CD32")
                 .addField("Payment From", `${paymentIntent.billing_details.name}`)
-                .addField("Payment Amount", `${paymentIntent.amount} ${paymentIntent.currency.toUppercase()}`)
+                .addField("Payment Amount", `${paymentIntent.amount} ${paymentIntent.currency}`)
                 .setTime();
 
             chargeSucceededHook.send(msg);
