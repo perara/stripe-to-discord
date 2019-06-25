@@ -1,3 +1,6 @@
+// add discord webhook function
+const webhook = require("webhook-discord");
+
 // Set your secret key: remember to change this to your live secret key in production
 // See your keys here: https://dashboard.stripe.com/account/apikeys
 const stripe = require('stripe')(process.env.API_KEY);
@@ -32,7 +35,21 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
     switch (event.type) {
         case 'charge.succeeded':
             const paymentIntent = event.data.object;
-            console.log(paymentIntent);
+
+            const chargeSucceededHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
+
+            const msg = new webhook.MessageBuilder()
+                .setName("Username")
+                .setColor("#aabbcc")
+                .setText("This is my test webhook!")
+                .addField("This", "is")
+                .addField("my", "test webhook!")
+                .setImage("Image url")
+                .setTime();
+
+            chargeSucceededHook.send(msg);
+
+
             return response.status(200).send(paymentIntent);
         default:
             // Unexpected event type
