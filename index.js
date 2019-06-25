@@ -78,7 +78,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
             chargeFailedHook.send(msgFailed);
 
 
-            return response.status(200).send(paymentIntent);
+            return response.status(200).send(paymentIntentFailed);
         default:
             // Unexpected event type
             return response.status(400).end();
