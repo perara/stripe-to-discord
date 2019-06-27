@@ -108,9 +108,6 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
             // Unexpected event type
             return response.status(400).end();
     }
-
-    // Return a response to acknowledge receipt of the event
-    response.json({ received: true });
 });
 
 const port = process.env.PORT || 5000;
