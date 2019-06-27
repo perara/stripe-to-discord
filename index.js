@@ -36,7 +36,8 @@ app.get("/test", (request, response) => {
     let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
     const testEmbed = new RichEmbed()
-        .setTitle("View Payment", `https://dashboard.stripe.com/payments/${paymentIntent.id}`)
+        .setTitle("View Payment")
+        .setURL(`https://dashboard.stripe.com/payments/${paymentIntent.id}`)
         .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
         .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
         .addField(`Email`, `${paymentIntent.billing_details.email} `)
@@ -71,7 +72,8 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
             let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
             const successEmbed = new RichEmbed()
-                .addTitle("View Payment", `https://dashboard.stripe.com/payments/${paymentIntent.id}`)
+                .setTitle("View Payment")
+                .setURL(`https://dashboard.stripe.com/payments/${paymentIntent.id}`)
                 .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
                 .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
                 .addField(`Email`, `${paymentIntent.billing_details.email} `)
@@ -86,12 +88,14 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
         case 'charge.failed':
             const paymentIntentFailed = event.data.object;
 
-            let avatarImageFailed = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
+            let avatarImageFailed = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntentFailed.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
             const failedEmbed = new RichEmbed()
-                .addField(`Failed Payment`, `${paymentIntent.billing_details.name}`, true)
-                .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
-                .addField(`Email`, `${paymentIntent.billing_details.email} `)
+                .setTitle("View Payment")
+                .setURL(`https://dashboard.stripe.com/payments/${paymentIntentFailed.id}`)
+                .addField(`Failed Payment`, `${paymentIntentFailed.billing_details.name}`, true)
+                .addField(`Amount`, `$${(paymentIntentFailed.amount / 100).toFixed(2)} ${paymentIntentFailed.currency.toUpperCase()} `, true)
+                .addField(`Email`, `${paymentIntentFailed.billing_details.email} `)
                 .setThumbnail(avatarImageFailed)
                 .setTimestamp()
                 .setColor("red")
