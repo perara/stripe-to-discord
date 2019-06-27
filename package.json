@@ -27,6 +27,9 @@
     "express": "^4.17.1",
     "stripe": "^7.3.0"
   },
+  "engines": {
+    "node": ">=10.16.0"
+  },
   "devDependencies": {
     "prettier": "1.18.2"
   }
