@@ -5,6 +5,9 @@ const crypto = require('crypto');
 const app = require('express')();
 const bodyParser = require('body-parser');
 
+const Sentry = require('@sentry/node');
+Sentry.init({ dsn: 'https://0a2dcb73e2e64bde8d007d4e6cd06702@sentry.io/1491411' });
+
 // stripe settings & includes
 // Find your endpoint's secret in your Dashboard's webhook settings
 const stripe = require('stripe')(process.env.API_KEY);
@@ -14,7 +17,8 @@ const endpointSecret = process.env.ENDPOINT_SECRET;
 const Discord = require('discord.js');
 
 // convert webhook link to id/token pair
-const hook = new Discord.WebhookClient(...process.env.PAYMENT_HOOK.split('/').slice(5));
+const [ webhookId, webhookSecret ] = process.env.PAYMENT_HOOK.split('/').slice(5);
+const hook = new Discord.WebhookClient(webhookId, webhookSecret);
 
 app.get("/", (request, response) => {
     response.status(200).json({ response: true, "description": "Stripe to discord by @darroneggins" });
