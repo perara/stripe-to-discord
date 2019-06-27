@@ -11,14 +11,13 @@ const endpointSecret = process.env.ENDPOINT_SECRET;
 
 // discord settings & includes
 const Discord = require('discord.js');
-const { RichEmbed } = require('discord.js');
 
 // convert webhook link to id/token pair
-let webhookArray = process.env.PAYMENT_HOOK.split('/');
-const hook = new Discord.WebhookClient(webhookArray[webhookArray.length - 2], webhookArray[webhookArray.length - 1]);
+const [ webhookId, webhookSecret ] = process.env.PAYMENT_HOOK.split('/').slice(5);
+const hook = new Discord.WebhookClient(webhookId, webhookSecret);
 
 app.get("/", (request, response) => {
-    response.status(200).json({ response: true, "description": "stripe to discord by @darroneggins" });
+    response.status(200).json({ response: true, "description": "Stripe to discord by @darroneggins" });
 });
 
 app.get("/test", (request, response) => {
@@ -35,18 +34,17 @@ app.get("/test", (request, response) => {
 
     let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
-    const testEmbed = new RichEmbed()
+    const testEmbed = new Discord.RichEmbed()
         .setTitle("View Payment")
         .setURL(`https://dashboard.stripe.com/payments/${paymentIntent.id}`)
-        .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
-        .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
-        .addField(`Email`, `${paymentIntent.billing_details.email} `)
+        .addField(`New Payment`, paymentIntent.billing_details.name, true)
+        .addField(`Amount`, new Intl.NumberFormat('en-US', { style: 'currency', currency: paymentIntent.currency }).format(paymentIntent.amount / 100), true)
+        .addField(`Email`, paymentIntent.billing_details.email)
         .setThumbnail(avatarImage)
         .setTimestamp()
         .setColor("#32CD32")
 
     hook.send(testEmbed);
-
 
     response.status(200).json({ success: true });
 });
@@ -71,12 +69,12 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
 
             let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
-            const successEmbed = new RichEmbed()
+            const successEmbed = new Discord.RichEmbed()
                 .setTitle("View Payment")
                 .setURL(`https://dashboard.stripe.com/payments/${paymentIntent.id}`)
-                .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
-                .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
-                .addField(`Email`, `${paymentIntent.billing_details.email} `)
+                .addField(`New Payment`, paymentIntent.billing_details.name, true)
+                .addField(`Amount`, new Intl.NumberFormat('en-US', { style: 'currency', currency: paymentIntent.currency }).format(paymentIntent.amount / 100), true)
+                .addField(`Email`, paymentIntent.billing_details.email)
                 .setThumbnail(avatarImage)
                 .setTimestamp()
                 .setColor("#32CD32")
@@ -90,27 +88,23 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
 
             let avatarImageFailed = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntentFailed.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
-            const failedEmbed = new RichEmbed()
+            const failedEmbed = new Discord.RichEmbed()
                 .setTitle("View Payment")
                 .setURL(`https://dashboard.stripe.com/payments/${paymentIntentFailed.id}`)
-                .addField(`Failed Payment`, `${paymentIntentFailed.billing_details.name}`, true)
-                .addField(`Amount`, `$${(paymentIntentFailed.amount / 100).toFixed(2)} ${paymentIntentFailed.currency.toUpperCase()} `, true)
-                .addField(`Email`, `${paymentIntentFailed.billing_details.email} `)
+                .addField(`Failed Payment`, paymentIntentFailed.billing_details.name, true)
+                .addField(`Amount`, new Intl.NumberFormat('en-US', { style: 'currency', currency: paymentIntent.currency }).format(paymentIntent.amount / 100), true)
+                .addField(`Email`, paymentIntentFailed.billing_details.email)
                 .setThumbnail(avatarImageFailed)
                 .setTimestamp()
                 .setColor("red")
 
             hook.send(failedEmbed);
 
-
             return response.status(200).send(paymentIntentFailed);
         default:
             // Unexpected event type
             return response.status(400).end();
     }
-
-    // Return a response to acknowledge receipt of the event
-    response.json({ received: true });
 });
 
 const port = process.env.PORT || 5000;
