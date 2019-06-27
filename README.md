@@ -9,3 +9,6 @@ ENDPOINT_SECRET - (Stripe Webhook Signing Key)
 API_KEY - (Stripe Private API Key)
 
 PAYMENT_HOOK - (discord webhook for channel)
+
+
+See your keys here: https://dashboard.stripe.com/account/apikeys

@@ -1,40 +1,28 @@
+// includes
 require('dotenv').config()
+const crypto = require('crypto');
+const app = require('express')();
+const bodyParser = require('body-parser');
 
-// add discord webhook function
-const webhook = require("webhook-discord");
-
-// Set your secret key: remember to change this to your live secret key in production
-// See your keys here: https://dashboard.stripe.com/account/apikeys
-const stripe = require('stripe')(process.env.API_KEY);
-
+// stripe settings & includes
 // Find your endpoint's secret in your Dashboard's webhook settings
+const stripe = require('stripe')(process.env.API_KEY);
 const endpointSecret = process.env.ENDPOINT_SECRET;
 
-// This example uses Express to receive webhooks
-const app = require('express')();
+// discord settings & includes
+const Discord = require('discord.js');
+const { RichEmbed } = require('discord.js');
 
-// Use body-parser to retrieve the raw body as a buffer
-const bodyParser = require('body-parser');
+// convert webhook link to id/token pair
+let webhookArray = process.env.PAYMENT_HOOK.split('/');
+const hook = new Discord.WebhookClient(webhookArray[webhookArray.length - 2], webhookArray[webhookArray.length - 1]);
+
 
 app.get("/", (request, response) => {
     response.status(200).json({ response: true, "description": "stripe to discord by @darroneggins" });
 });
 
 app.get("/test", (request, response) => {
-    const testHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
-
-    let paymentIntent = { amount: "10000", "currency": "usd" }
-
-    const testMsg = new webhook.MessageBuilder()
-        .setName("Stripe Payment")
-        .setColor("#32CD32")
-        .addField("Payment From", `Darron Eggins`, true)
-        .addField("Payment Amount", `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()}`, true)
-        .setImage("https://stripe.com/img/v3/home/twitter.png")
-        .setTime();
-
-    testHook.send(testMsg);
-
     response.status(200).json({ success: true });
 });
 
@@ -48,7 +36,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
         event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
     }
     catch (err) {
-        response.status(400).send(`Webhook Error: ${err.message}`);
+        response.status(400).send(`Webhook Error: ${err.message} `);
     }
 
     // Handle the event
@@ -56,33 +44,34 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
         case 'charge.succeeded':
             const paymentIntent = event.data.object;
 
-            const chargeSucceededHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
+            let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
-            const msg = new webhook.MessageBuilder()
-                .setName("Stripe Payment")
+            const successEmbed = new RichEmbed()
+                .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
+                .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
+                .addField(`Email`, `${paymentIntent.billing_details.email} `)
+                .setThumbnail(avatarImage)
+                .setTimestamp()
                 .setColor("#32CD32")
-                .addField("Payment From", `${paymentIntent.billing_details.name}`)
-                .addField("Payment Amount", `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()}`)
-                .setTime();
 
-            chargeSucceededHook.send(msg);
-
+            hook.send(embed);
 
             return response.status(200).send(paymentIntent);
 
         case 'charge.failed':
             const paymentIntentFailed = event.data.object;
 
-            const chargeFailedHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
+            let avatarImageFailed = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
-            const msgFailed = new webhook.MessageBuilder()
-                .setName("Stripe Payment Failed")
-                .setColor("#FF0000")
-                .addField("Payment From", `${paymentIntent.billing_details.name}`)
-                .addField("Payment Amount", `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()}`)
-                .setTime();
+            const failedEmbed = new RichEmbed()
+                .addField(`Failed Payment`, `${paymentIntent.billing_details.name}`, true)
+                .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
+                .addField(`Email`, `${paymentIntent.billing_details.email} `)
+                .setThumbnail(avatarImageFailed)
+                .setTimestamp()
+                .setColor("red")
 
-            chargeFailedHook.send(msgFailed);
+            hook.send(failedEmbed);
 
 
             return response.status(200).send(paymentIntentFailed);
@@ -98,5 +87,5 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-    console.log(`Express Server is now running on port ${port}`);
+    console.log(`Express Server is now running on port ${port} `);
 });
