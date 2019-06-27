@@ -25,12 +25,20 @@
     "discord.js": "^11.5.1",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
+    "g": "^2.0.1",
     "stripe": "^7.3.0"
   },
   "engines": {
     "node": ">=10.16.0"
   },
   "devDependencies": {
-    "prettier": "1.18.2"
+    "husky": "^2.4.1",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
