@@ -17,12 +17,36 @@ const { RichEmbed } = require('discord.js');
 let webhookArray = process.env.PAYMENT_HOOK.split('/');
 const hook = new Discord.WebhookClient(webhookArray[webhookArray.length - 2], webhookArray[webhookArray.length - 1]);
 
-
 app.get("/", (request, response) => {
     response.status(200).json({ response: true, "description": "stripe to discord by @darroneggins" });
 });
 
 app.get("/test", (request, response) => {
+    let paymentIntent = {
+        email: "darron@copped.io",
+        billing_details: {
+            email: "darron@copped.io",
+            name: "Darron Eggins"
+        },
+        amount: "10000",
+        currency: "usd",
+        id: "ch_123131313121"
+    }
+
+    let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
+
+    const testEmbed = new RichEmbed()
+        .setTitle("View Payment", `https://dashboard.stripe.com/payments/${paymentIntent.id}`)
+        .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
+        .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
+        .addField(`Email`, `${paymentIntent.billing_details.email} `)
+        .setThumbnail(avatarImage)
+        .setTimestamp()
+        .setColor("#32CD32")
+
+    hook.send(testEmbed);
+
+
     response.status(200).json({ success: true });
 });
 
@@ -47,6 +71,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
             let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
             const successEmbed = new RichEmbed()
+                .addTitle("View Payment", `https://dashboard.stripe.com/payments/${paymentIntent.id}`)
                 .addField(`New Payment`, `${paymentIntent.billing_details.name}`, true)
                 .addField(`Amount`, `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()} `, true)
                 .addField(`Email`, `${paymentIntent.billing_details.email} `)
@@ -54,7 +79,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
                 .setTimestamp()
                 .setColor("#32CD32")
 
-            hook.send(embed);
+            hook.send(successEmbed);
 
             return response.status(200).send(paymentIntent);
 
