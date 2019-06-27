@@ -1,0 +1,12 @@
+{
+  "name": "Stripe To Discord",
+  "description": "A basic Stripe Webhook to Discord Webhook middleman",
+  "repository": "https://github.com/eggins/stripe-to-discord",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": [
+    "node",
+    "express",
+    "stripe",
+    "discord"
+  ]
+}
