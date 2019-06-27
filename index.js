@@ -1,5 +1,6 @@
+
 // includes
-require('dotenv').config()
+require('dotenv').config();
 const crypto = require('crypto');
 const app = require('express')();
 const bodyParser = require('body-parser');
@@ -13,15 +14,14 @@ const endpointSecret = process.env.ENDPOINT_SECRET;
 const Discord = require('discord.js');
 
 // convert webhook link to id/token pair
-const [ webhookId, webhookSecret ] = process.env.PAYMENT_HOOK.split('/').slice(5);
-const hook = new Discord.WebhookClient(webhookId, webhookSecret);
+const hook = new Discord.WebhookClient(...process.env.PAYMENT_HOOK.split('/').slice(5));
 
 app.get("/", (request, response) => {
     response.status(200).json({ response: true, "description": "Stripe to discord by @darroneggins" });
 });
 
 app.get("/test", (request, response) => {
-    let paymentIntent = {
+    const paymentIntent = {
         email: "darron@copped.io",
         billing_details: {
             email: "darron@copped.io",
@@ -32,7 +32,7 @@ app.get("/test", (request, response) => {
         id: "ch_123131313121"
     }
 
-    let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
+    const avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
     const testEmbed = new Discord.RichEmbed()
         .setTitle("View Payment")
@@ -67,7 +67,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
         case 'charge.succeeded':
             const paymentIntent = event.data.object;
 
-            let avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
+            const avatarImage = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntent.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
             const successEmbed = new Discord.RichEmbed()
                 .setTitle("View Payment")
@@ -86,7 +86,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
         case 'charge.failed':
             const paymentIntentFailed = event.data.object;
 
-            let avatarImageFailed = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntentFailed.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
+            const avatarImageFailed = `https://www.gravatar.com/avatar/${crypto.createHash('md5').update(paymentIntentFailed.billing_details.email).digest("hex")}?s=512&d=${encodeURIComponent("https://stripe.com/img/v3/home/twitter.png")}`
 
             const failedEmbed = new Discord.RichEmbed()
                 .setTitle("View Payment")
