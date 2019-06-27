@@ -20,6 +20,24 @@ app.get("/", (request, response) => {
     response.status(200).json({ response: true, "description": "stripe to discord by @darroneggins" });
 });
 
+app.get("/test", (request, response) => {
+    const testHook = new webhook.Webhook(process.env.PAYMENT_HOOK);
+
+    let paymentIntent = { amount: "10000", "currency": "usd" }
+
+    const testMsg = new webhook.MessageBuilder()
+        .setName("Stripe Payment")
+        .setColor("#32CD32")
+        .addField("Payment From", `Darron Eggins`, true)
+        .addField("Payment Amount", `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()}`, true)
+        .setImage("https://stripe.com/img/v3/home/twitter.png")
+        .setTime();
+
+    testHook.send(testMsg);
+
+    response.status(200).json({ success: true });
+});
+
 // Match the raw body to content type application/json
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, response) => {
     const sig = request.headers['stripe-signature'];
@@ -60,8 +78,8 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (request, res
             const msgFailed = new webhook.MessageBuilder()
                 .setName("Stripe Payment Failed")
                 .setColor("#FF0000")
-                .addField("Payment From", `${paymentIntentFailed.billing_details.name}`)
-                .addField("Payment Amount", `$${paymentIntentFailed.amount} ${paymentIntentFailed.currency.toUpperCase()}`)
+                .addField("Payment From", `${paymentIntent.billing_details.name}`)
+                .addField("Payment Amount", `$${(paymentIntent.amount / 100).toFixed(2)} ${paymentIntent.currency.toUpperCase()}`)
                 .setTime();
 
             chargeFailedHook.send(msgFailed);
