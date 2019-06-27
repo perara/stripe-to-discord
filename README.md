@@ -1,5 +1,8 @@
 # Stripe To Discord
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/eggins/stripe-to-discord)
+
+
 Note: I will write out all of the installation docs, and how to host this 100% free using Heroku.
 
 For now, youll set these 3 ENV vars.
