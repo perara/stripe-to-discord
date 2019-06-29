@@ -42,7 +42,7 @@ app.get('/test', (request, response) => {
 
 	// const avatarImage = `https://www.gravatar.com/avatar/${crypto
 	// 	.createHash('md5')
-	// 	.update(paymentIntent.billing_details.email)
+	// 	.update(paymentIntent.description)
 	// 	.digest('hex')}?s=512&d=${encodeURIComponent(
 	// 	'https://stripe.com/img/v3/home/twitter.png',
 	// )}`;
@@ -59,7 +59,7 @@ app.get('/test', (request, response) => {
 			}).format(paymentIntent.amount / 100),
 			true,
 		)
-		.addField(`Email`, paymentIntent.billing_details.email)
+		.addField(`Email`, paymentIntent.description)
 		// .setThumbnail(avatarImage)
 		.setTimestamp()
 		.setColor('#32CD32');
@@ -93,9 +93,11 @@ app.post(
 			case 'charge.succeeded':
 				const paymentIntent = event.data.object;
 
+				console.log(paymentIntent);
+
 				// const avatarImage = `https://www.gravatar.com/avatar/${crypto
 				// 	.createHash('md5')
-				// 	.update(paymentIntent.billing_details.email)
+				// 	.update(paymentIntent.description)
 				// 	.digest('hex')}?s=512&d=${encodeURIComponent(
 				// 	'https://stripe.com/img/v3/home/twitter.png',
 				// )}`;
@@ -118,7 +120,7 @@ app.post(
 						}).format(paymentIntent.amount / 100),
 						true,
 					)
-					.addField(`Email`, paymentIntent.billing_details.email)
+					.addField(`Email`, paymentIntent.description)
 					// .setThumbnail(avatarImage)
 					.setTimestamp()
 					.setColor('#32CD32');
@@ -132,7 +134,7 @@ app.post(
 
 				// const avatarImageFailed = `https://www.gravatar.com/avatar/${crypto
 				// 	.createHash('md5')
-				// 	.update(paymentIntentFailed.billing_details.email)
+				// 	.update(paymentIntentFailed.description)
 				// 	.digest('hex')}?s=512&d=${encodeURIComponent(
 				// 	'https://stripe.com/img/v3/home/twitter.png',
 				// )}`;
@@ -155,10 +157,7 @@ app.post(
 						}).format(paymentIntentFailed.amount / 100),
 						true,
 					)
-					.addField(
-						`Email`,
-						paymentIntentFailed.billing_details.email,
-					)
+					.addField(`Email`, paymentIntentFailed.description)
 					// .setThumbnail(avatarImageFailed)
 					.setTimestamp()
 					.setColor('red');
