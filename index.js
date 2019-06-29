@@ -1,6 +1,6 @@
 // includes
 require('dotenv').config();
-const crypto = require('crypto');
+const gravatar = require('gravatar');
 const app = require('express')();
 const bodyParser = require('body-parser');
 
@@ -29,12 +29,13 @@ app.get('/', (request, response) => {
 });
 
 app.get('/test', (request, response) => {
-	const paymentIntent = {
+	const paymentIntentTest = {
 		email: 'darron@copped.io',
 		billing_details: {
 			email: 'darron@copped.io',
 			name: 'Darron Eggins',
 		},
+		description: 'darron@copped.io',
 		amount: '10000',
 		currency: 'usd',
 		id: 'ch_123131313121',
@@ -47,20 +48,27 @@ app.get('/test', (request, response) => {
 	// 	'https://stripe.com/img/v3/home/twitter.png',
 	// )}`;
 
+	const testAvatarURL = gravatar.url(paymentIntentTest.description, {
+		protocol: 'https',
+		s: '512',
+	});
+
+	console.log(testAvatarURL);
+
 	const testEmbed = new Discord.RichEmbed()
 		.setTitle('View Payment')
-		.setURL(`https://dashboard.stripe.com/payments/${paymentIntent.id}`)
-		.addField(`New Payment`, paymentIntent.billing_details.name)
+		.setURL(`https://dashboard.stripe.com/payments/${paymentIntentTest.id}`)
+		.addField(`New Payment`, paymentIntentTest.billing_details.name, true)
 		.addField(
 			`Amount`,
 			new Intl.NumberFormat('en-US', {
 				style: 'currency',
-				currency: paymentIntent.currency,
-			}).format(paymentIntent.amount / 100),
+				currency: paymentIntentTest.currency,
+			}).format(paymentIntentTest.amount / 100),
 			true,
 		)
-		.addField(`Email`, paymentIntent.description)
-		// .setThumbnail(avatarImage)
+		.addField(`Email`, paymentIntentTest.description)
+		.setThumbnail(testAvatarURL)
 		.setTimestamp()
 		.setColor('#32CD32');
 
