@@ -35,7 +35,7 @@ app.get('/test', (request, response) => {
 			email: 'darron@copped.io',
 			name: 'Darron Eggins',
 		},
-		description: 'darron@copped.io',
+		description: 'darron@copped.io1',
 		amount: '10000',
 		currency: 'usd',
 		id: 'ch_123131313121',
@@ -51,6 +51,7 @@ app.get('/test', (request, response) => {
 	const testAvatarURL = gravatar.url(paymentIntentTest.description, {
 		protocol: 'https',
 		s: '512',
+		default: 'https://stripe.com/img/v3/home/twitter.png',
 	});
 
 	console.log(testAvatarURL);
@@ -101,14 +102,14 @@ app.post(
 			case 'charge.succeeded':
 				const paymentIntent = event.data.object;
 
-				console.log(paymentIntent);
-
-				// const avatarImage = `https://www.gravatar.com/avatar/${crypto
-				// 	.createHash('md5')
-				// 	.update(paymentIntent.description)
-				// 	.digest('hex')}?s=512&d=${encodeURIComponent(
-				// 	'https://stripe.com/img/v3/home/twitter.png',
-				// )}`;
+				const successAvatarURL = gravatar.url(
+					paymentIntentTest.description,
+					{
+						protocol: 'https',
+						s: '512',
+						default: 'https://stripe.com/img/v3/home/twitter.png',
+					},
+				);
 
 				const successEmbed = new Discord.RichEmbed()
 					.setTitle('View Payment')
@@ -129,7 +130,7 @@ app.post(
 						true,
 					)
 					.addField(`Email`, paymentIntent.description)
-					// .setThumbnail(avatarImage)
+					.setThumbnail(successAvatarURL)
 					.setTimestamp()
 					.setColor('#32CD32');
 
@@ -140,12 +141,14 @@ app.post(
 			case 'charge.failed':
 				const paymentIntentFailed = event.data.object;
 
-				// const avatarImageFailed = `https://www.gravatar.com/avatar/${crypto
-				// 	.createHash('md5')
-				// 	.update(paymentIntentFailed.description)
-				// 	.digest('hex')}?s=512&d=${encodeURIComponent(
-				// 	'https://stripe.com/img/v3/home/twitter.png',
-				// )}`;
+				const failedAvatarURL = gravatar.url(
+					paymentIntentTest.description,
+					{
+						protocol: 'https',
+						s: '512',
+						default: 'https://stripe.com/img/v3/home/twitter.png',
+					},
+				);
 
 				const failedEmbed = new Discord.RichEmbed()
 					.setTitle('View Payment')
@@ -166,11 +169,13 @@ app.post(
 						true,
 					)
 					.addField(`Email`, paymentIntentFailed.description)
-					// .setThumbnail(avatarImageFailed)
+					.setThumbnail(failedAvatarURL)
 					.setTimestamp()
 					.setColor('red');
 
-				hook.send(failedEmbed);
+				hook.send(failedEmbed).catch(err => {
+					console.log(err);
+				});
 
 				return response.status(200).send(paymentIntentFailed);
 
