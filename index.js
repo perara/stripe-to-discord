@@ -50,7 +50,7 @@ app.get('/test', (request, response) => {
 	const testEmbed = new Discord.RichEmbed()
 		.setTitle('View Payment')
 		.setURL(`https://dashboard.stripe.com/payments/${paymentIntent.id}`)
-		.addField(`New Payment`, paymentIntent.billing_details.name, true)
+		.addField(`New Payment`, paymentIntent.billing_details.name)
 		.addField(
 			`Amount`,
 			new Intl.NumberFormat('en-US', {
@@ -151,15 +151,15 @@ app.post(
 						`Amount`,
 						new Intl.NumberFormat('en-US', {
 							style: 'currency',
-							currency: paymentIntent.currency,
-						}).format(paymentIntent.amount / 100),
+							currency: paymentIntentFailed.currency,
+						}).format(paymentIntentFailed.amount / 100),
 						true,
 					)
 					.addField(
 						`Email`,
 						paymentIntentFailed.billing_details.email,
 					)
-					.setThumbnail(avatarImageFailed)
+					// .setThumbnail(avatarImageFailed)
 					.setTimestamp()
 					.setColor('red');
 
