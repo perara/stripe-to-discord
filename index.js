@@ -22,12 +22,10 @@ const [webhookId, webhookSecret] = process.env.PAYMENT_HOOK.split('/').slice(5);
 const hook = new Discord.WebhookClient(webhookId, webhookSecret);
 
 app.get('/', (request, response) => {
-	response
-		.status(200)
-		.json({
-			response: true,
-			description: 'Stripe to discord by @darroneggins',
-		});
+	response.status(200).json({
+		response: true,
+		description: 'Stripe to discord by @darroneggins',
+	});
 });
 
 app.get('/test', (request, response) => {
@@ -42,12 +40,12 @@ app.get('/test', (request, response) => {
 		id: 'ch_123131313121',
 	};
 
-	const avatarImage = `https://www.gravatar.com/avatar/${crypto
-		.createHash('md5')
-		.update(paymentIntent.billing_details.email)
-		.digest('hex')}?s=512&d=${encodeURIComponent(
-		'https://stripe.com/img/v3/home/twitter.png',
-	)}`;
+	// const avatarImage = `https://www.gravatar.com/avatar/${crypto
+	// 	.createHash('md5')
+	// 	.update(paymentIntent.billing_details.email)
+	// 	.digest('hex')}?s=512&d=${encodeURIComponent(
+	// 	'https://stripe.com/img/v3/home/twitter.png',
+	// )}`;
 
 	const testEmbed = new Discord.RichEmbed()
 		.setTitle('View Payment')
@@ -62,7 +60,7 @@ app.get('/test', (request, response) => {
 			true,
 		)
 		.addField(`Email`, paymentIntent.billing_details.email)
-		.setThumbnail(avatarImage)
+		// .setThumbnail(avatarImage)
 		.setTimestamp()
 		.setColor('#32CD32');
 
@@ -95,12 +93,12 @@ app.post(
 			case 'charge.succeeded':
 				const paymentIntent = event.data.object;
 
-				const avatarImage = `https://www.gravatar.com/avatar/${crypto
-					.createHash('md5')
-					.update(paymentIntent.billing_details.email)
-					.digest('hex')}?s=512&d=${encodeURIComponent(
-					'https://stripe.com/img/v3/home/twitter.png',
-				)}`;
+				// const avatarImage = `https://www.gravatar.com/avatar/${crypto
+				// 	.createHash('md5')
+				// 	.update(paymentIntent.billing_details.email)
+				// 	.digest('hex')}?s=512&d=${encodeURIComponent(
+				// 	'https://stripe.com/img/v3/home/twitter.png',
+				// )}`;
 
 				const successEmbed = new Discord.RichEmbed()
 					.setTitle('View Payment')
@@ -121,7 +119,7 @@ app.post(
 						true,
 					)
 					.addField(`Email`, paymentIntent.billing_details.email)
-					.setThumbnail(avatarImage)
+					// .setThumbnail(avatarImage)
 					.setTimestamp()
 					.setColor('#32CD32');
 
@@ -132,12 +130,12 @@ app.post(
 			case 'charge.failed':
 				const paymentIntentFailed = event.data.object;
 
-				const avatarImageFailed = `https://www.gravatar.com/avatar/${crypto
-					.createHash('md5')
-					.update(paymentIntentFailed.billing_details.email)
-					.digest('hex')}?s=512&d=${encodeURIComponent(
-					'https://stripe.com/img/v3/home/twitter.png',
-				)}`;
+				// const avatarImageFailed = `https://www.gravatar.com/avatar/${crypto
+				// 	.createHash('md5')
+				// 	.update(paymentIntentFailed.billing_details.email)
+				// 	.digest('hex')}?s=512&d=${encodeURIComponent(
+				// 	'https://stripe.com/img/v3/home/twitter.png',
+				// )}`;
 
 				const failedEmbed = new Discord.RichEmbed()
 					.setTitle('View Payment')
