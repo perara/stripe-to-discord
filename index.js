@@ -103,7 +103,7 @@ app.post(
 				const paymentIntent = event.data.object;
 
 				const successAvatarURL = gravatar.url(
-					paymentIntentTest.description,
+					paymentIntent.description,
 					{
 						protocol: 'https',
 						s: '512',
@@ -142,7 +142,7 @@ app.post(
 				const paymentIntentFailed = event.data.object;
 
 				const failedAvatarURL = gravatar.url(
-					paymentIntentTest.description,
+					paymentIntentFailed.description,
 					{
 						protocol: 'https',
 						s: '512',
