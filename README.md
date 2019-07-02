@@ -1,10 +1,6 @@
-<h1 align="center">Stripe Notifications for Discord</h1>
-
-## Hosted Solution
+<h1>Stripe Notifications for Discord</h1>
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/eggins/stripe-to-discord)
-
-<hr>
 
 ## Install
 
@@ -18,13 +14,19 @@ npm install
 npm run start
 ```
 
-<hr>
+## Supported Webhook Endpoints
+
+Others are more than welcome to add further webhook endpoints! Be sure to submit a pull request.
+
+```
+charge.succeeded
+charge.failed
+transfer.paid
+```
 
 ## Contributing
 
 Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/eggins/stripe-to-discord/issues).
-
-<hr>
 
 ## License
 
