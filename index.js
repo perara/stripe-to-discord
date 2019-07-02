@@ -1,10 +1,11 @@
 // includes
 require('dotenv').config();
-const gravatar = require('gravatar');
 const app = require('express')();
 const bodyParser = require('body-parser');
-
+const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
+const t = require('./tools');
+
 Sentry.init({
 	dsn: 'https://0a2dcb73e2e64bde8d007d4e6cd06702@sentry.io/1491411',
 });
@@ -13,9 +14,6 @@ Sentry.init({
 // Find your endpoint's secret in your Dashboard's webhook settings
 const stripe = require('stripe')(process.env.API_KEY);
 const endpointSecret = process.env.ENDPOINT_SECRET;
-
-// discord settings & includes
-const Discord = require('discord.js');
 
 // convert webhook link to id/token pair
 const [webhookId, webhookSecret] = process.env.PAYMENT_HOOK.split('/').slice(5);
@@ -28,64 +26,16 @@ app.get('/', (request, response) => {
 	});
 });
 
-app.get('/test', (request, response) => {
-	const paymentIntentTest = {
-		email: 'darron@copped.io',
-		billing_details: {
-			email: 'darron@copped.io',
-			name: 'Darron Eggins',
-		},
-		description: 'darron@copped.io1',
-		amount: '10000',
-		currency: 'usd',
-		id: 'ch_123131313121',
-	};
-
-	// const avatarImage = `https://www.gravatar.com/avatar/${crypto
-	// 	.createHash('md5')
-	// 	.update(paymentIntent.description)
-	// 	.digest('hex')}?s=512&d=${encodeURIComponent(
-	// 	'https://stripe.com/img/v3/home/twitter.png',
-	// )}`;
-
-	const testAvatarURL = gravatar.url(paymentIntentTest.description, {
-		protocol: 'https',
-		s: '512',
-		default: 'https://stripe.com/img/v3/home/twitter.png',
-	});
-
-	console.log(testAvatarURL);
-
-	const testEmbed = new Discord.RichEmbed()
-		.setTitle('View Payment')
-		.setURL(`https://dashboard.stripe.com/payments/${paymentIntentTest.id}`)
-		.addField(`New Payment`, paymentIntentTest.billing_details.name, true)
-		.addField(
-			`Amount`,
-			new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: paymentIntentTest.currency,
-			}).format(paymentIntentTest.amount / 100),
-			true,
-		)
-		.addField(`Email`, paymentIntentTest.description)
-		.setThumbnail(testAvatarURL)
-		.setTimestamp()
-		.setColor('#32CD32');
-
-	hook.send(testEmbed);
-
-	response.status(200).json({ success: true });
-});
-
 // Match the raw body to content type application/json
 app.post(
 	'/webhook',
 	bodyParser.raw({ type: 'application/json' }),
 	(request, response) => {
-		const sig = request.headers['stripe-signature'];
-
 		let event;
+		let email;
+		let paymentData;
+
+		const sig = request.headers['stripe-signature'];
 
 		try {
 			event = stripe.webhooks.constructEvent(
@@ -97,87 +47,97 @@ app.post(
 			response.status(400).send(`Webhook Error: ${err.message} `);
 		}
 
+		const embed = t.makeEmbed();
+
 		// Handle the event
 		switch (event.type) {
 			case 'charge.succeeded':
-				const paymentIntent = event.data.object;
+				paymentData = event.data.object;
 
-				const successAvatarURL = gravatar.url(
-					paymentIntent.description,
-					{
-						protocol: 'https',
-						s: '512',
-						default: 'https://stripe.com/img/v3/home/twitter.png',
-					},
-				);
+				email =
+					paymentData.billing_details.email != null
+						? paymentData.billing_details
+						: paymentData.description;
 
-				const successEmbed = new Discord.RichEmbed()
-					.setTitle('View Payment')
+				embed
+					.setColor('#77dd77')
+					.setThumbnail(t.gravatar(paymentData.description))
 					.setURL(
-						`https://dashboard.stripe.com/payments/${paymentIntent.id}`,
+						`https://dashboard.stripe.com/payments/${paymentData.id}`,
 					)
 					.addField(
 						`New Payment`,
-						paymentIntent.billing_details.name,
+						paymentData.billing_details.name,
 						true,
 					)
 					.addField(
 						`Amount`,
 						new Intl.NumberFormat('en-US', {
 							style: 'currency',
-							currency: paymentIntent.currency,
-						}).format(paymentIntent.amount / 100),
+							currency: paymentData.currency,
+						}).format(paymentData.amount / 100),
 						true,
 					)
-					.addField(`Email`, paymentIntent.description)
-					.setThumbnail(successAvatarURL)
-					.setTimestamp()
-					.setColor('#32CD32');
+					.addField(`Email`, email);
 
-				hook.send(successEmbed);
+				hook.send(embed);
 
-				return response.status(200).send(paymentIntent);
+				return response.status(200).send(paymentData);
 
 			case 'charge.failed':
-				const paymentIntentFailed = event.data.object;
+				paymentData = event.data.object;
 
-				const failedAvatarURL = gravatar.url(
-					paymentIntentFailed.description,
-					{
-						protocol: 'https',
-						s: '512',
-						default: 'https://stripe.com/img/v3/home/twitter.png',
-					},
-				);
+				email =
+					paymentData.billing_details.email != null
+						? paymentData.billing_details
+						: paymentData.description;
 
-				const failedEmbed = new Discord.RichEmbed()
-					.setTitle('View Payment')
+				embed
+					.setColor('#ff6961')
+					.setThumbnail(t.gravatar(paymentData.description))
 					.setURL(
-						`https://dashboard.stripe.com/payments/${paymentIntentFailed.id}`,
+						`https://dashboard.stripe.com/payments/${paymentData.id}`,
 					)
 					.addField(
 						`Failed Payment`,
-						paymentIntentFailed.billing_details.name,
+						paymentData.billing_details.name,
 						true,
 					)
 					.addField(
 						`Amount`,
 						new Intl.NumberFormat('en-US', {
 							style: 'currency',
-							currency: paymentIntentFailed.currency,
-						}).format(paymentIntentFailed.amount / 100),
+							currency: paymentData.currency,
+						}).format(paymentData.amount / 100),
 						true,
 					)
-					.addField(`Email`, paymentIntentFailed.description)
-					.setThumbnail(failedAvatarURL)
-					.setTimestamp()
-					.setColor('red');
+					.addField(`Email`, email);
 
-				hook.send(failedEmbed).catch(err => {
-					console.log(err);
-				});
+				hook.send(embed);
 
-				return response.status(200).send(paymentIntentFailed);
+				return response.status(200).send(paymentData);
+
+			case 'transfer.paid':
+				paymentData = event.data.object;
+
+				embed
+					.setColor('#00bfff')
+					.setThumbnail(t.gravatar(paymentData.description))
+					.setURL(
+						`https://dashboard.stripe.com/payouts/${paymentData.id}`,
+					)
+					.addField(
+						`Tranfer Paid`,
+						new Intl.NumberFormat('en-US', {
+							style: 'currency',
+							currency: paymentData.currency,
+						}).format(paymentData.amount / 100),
+						true,
+					);
+
+				hook.send(embed);
+
+				return response.status(200).send(paymentData);
 
 			default:
 				// Unexpected event type
