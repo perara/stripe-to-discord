@@ -21,6 +21,7 @@ Others are more than welcome to add further webhook endpoints! Be sure to submit
 ```
 charge.succeeded
 charge.failed
+payout.paid
 transfer.paid
 ```
 

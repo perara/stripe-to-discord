@@ -118,6 +118,7 @@ app.post(
 				return response.status(200).send(paymentData);
 
 			case 'transfer.paid':
+			case 'payout.paid':
 				paymentData = event.data.object;
 
 				embed
@@ -127,7 +128,7 @@ app.post(
 						`https://dashboard.stripe.com/payouts/${paymentData.id}`,
 					)
 					.addField(
-						`Tranfer Paid`,
+						`Payout Paid`,
 						new Intl.NumberFormat('en-US', {
 							style: 'currency',
 							currency: paymentData.currency,
