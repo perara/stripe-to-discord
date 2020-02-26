@@ -53,7 +53,7 @@ app.post(
 		switch (event.type) {
 			case 'charge.succeeded':
 				paymentData = event.data.object;
-				
+
 				console.log(paymentData);
 
 				email =
@@ -91,7 +91,7 @@ app.post(
 
 				email =
 					paymentData.billing_details.email != null
-						? paymentData.billing_details
+						? paymentData.billing_details.email
 						: paymentData.description;
 
 				embed
