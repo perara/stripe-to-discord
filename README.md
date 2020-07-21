@@ -32,4 +32,4 @@ Contributions, issues and feature requests are welcome!<br />Feel free to check 
 ## License
 
 Copyright © 2019 [Darron Eggins](https://github.com/eggins).<br />
-This project is [ISC](https://github.com/eggins/stripe-to-discord/blob/master/LICENSE) licensed.
+This project is [MIT](https://github.com/eggins/stripe-to-discord/blob/master/LICENSE) licensed.
