@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/eggins/stripe-to-discord#readme",
   "dependencies": {
-    "@sentry/node": "^5.4.3",
     "body-parser": "^1.19.0",
     "crypto": "^1.0.1",
     "discord.js": "^11.5.1",
