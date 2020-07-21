@@ -3,12 +3,7 @@ require('dotenv').config();
 const app = require('express')();
 const bodyParser = require('body-parser');
 const Discord = require('discord.js');
-const Sentry = require('@sentry/node');
 const t = require('./tools');
-
-Sentry.init({
-	dsn: 'https://0a2dcb73e2e64bde8d007d4e6cd06702@sentry.io/1491411',
-});
 
 // stripe settings & includes
 // Find your endpoint's secret in your Dashboard's webhook settings
