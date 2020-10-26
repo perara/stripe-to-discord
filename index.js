@@ -7,14 +7,13 @@ const t = require('./tools');
 
 // stripe settings & includes
 // Find your endpoint's secret in your Dashboard's webhook settings
-const stripe = require('stripe')(process.env.API_KEY);
-const endpointSecret = process.env.ENDPOINT_SECRET;
-
-// convert webhook link to id/token pair
-const [webhookId, webhookSecret] = process.env.DISCORD_WEBHOOK.split('/').slice(
-	5,
+const stripe = require('stripe')(process.env.STRIPE_API_SECRET);
+const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const [webhookID, webhookSecret] = process.env.DISCORD_WEBHOOK.split('/').slice(
+	-2,
 );
-const hook = new Discord.WebhookClient(webhookId, webhookSecret);
+
+const hook = new Discord.WebhookClient(webhookID, webhookSecret);
 
 app.get('/', (request, response) => {
 	response.status(200).json({
@@ -38,7 +37,7 @@ app.post(
 			event = stripe.webhooks.constructEvent(
 				request.body,
 				sig,
-				endpointSecret,
+				stripeWebhookSecret,
 			);
 		} catch (err) {
 			response.status(400).send(`Webhook Error: ${err.message} `);
