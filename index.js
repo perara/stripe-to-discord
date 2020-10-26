@@ -11,7 +11,9 @@ const stripe = require('stripe')(process.env.API_KEY);
 const endpointSecret = process.env.ENDPOINT_SECRET;
 
 // convert webhook link to id/token pair
-const [webhookId, webhookSecret] = process.env.PAYMENT_HOOK.split('/').slice(5);
+const [webhookId, webhookSecret] = process.env.DISCORD_WEBHOOK.split('/').slice(
+	5,
+);
 const hook = new Discord.WebhookClient(webhookId, webhookSecret);
 
 app.get('/', (request, response) => {
